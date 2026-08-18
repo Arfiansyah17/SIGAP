@@ -1,0 +1,293 @@
+@import "tailwindcss";
+
+/*
+ * SEMANTIC COLOR TOKENS
+ *
+ * Every colour in this app is a semantic role, never a raw palette value. A
+ * component asks for `bg-surface` or `text-fg-muted`, so the same markup works
+ * in both themes and neither theme can drift.
+ *
+ * Theme resolution, in priority order:
+ *   1. `[data-theme="dark"]` on <html>, set by the user's explicit choice in
+ *      the toggle. Written before first paint by the bootstrap script in
+ *      app/layout.tsx.
+ *   2. Light, the default, because that is the base :root block. There is no
+ *      "follow the OS" mode: the product opens light for every visitor, dark
+ *      is opt-in, and the choice is remembered locally, never inferred from
+ *      `prefers-color-scheme`.
+ *
+ * Light is designed independently, not an inversion: it uses a warm off-white
+ * canvas with white panels (surfaces get lighter as they come forward, the
+ * opposite of dark), and darker, more saturated accent and status colours so
+ * they still meet WCAG AA on a light ground.
+ *
+ * Brand palette: main #FDFDFD, gradient #8ACD65 to #0F847E, third #203734.
+ * The third colour is the dark canvas; the main colour is the light canvas and
+ * the dark theme's text.
+ *
+ * Contrast was verified rather than assumed, per pair, in both themes. Lowest
+ * ratio is fg-faint at 3.47:1 on dark surface (secondary text, AA large/UI
+ * target 3.0). All primary text, accent, and status colours clear 4.5:1 on both
+ * canvas and surface. The teal gradient end is the reason --brand-gradient is
+ * restricted to decoration; see the note on that token.
+ */
+
+:root {
+  /* Backgrounds, back to front. Warm off-white canvas, white panels forward. */
+  --canvas: #fdfdfd;
+  --surface: #ffffff;
+  --surface-hi: #f1f5f3;
+  --track: #e3ebe8;
+
+  /* Hairlines */
+  --line: #e1eae7;
+  --line-strong: #c6d5d0;
+
+  /* Text, most to least prominent. --fg is the Figma deep green. */
+  --fg: #16211e;
+  --fg-muted: #3a4a46;
+  --fg-subtle: #566863;
+  --fg-faint: #6f827d;
+  --fg-ghost: #94a5a0;
+
+  /* Solid accent for interaction and CTA, taken from the gradient's teal end */
+  --accent: #0d726d;
+  --accent-hover: #0a5b57;
+  --on-accent: #ffffff;
+
+  /* Status triad: results only, never decoration */
+  --safe: #14724a;
+  --warn: #8a5b00;
+  --danger: #b3251d;
+
+  /* Translucent overlays, theme-aware so light mode does not get white-on-white */
+  --veil: rgb(22 33 30 / 0.04);
+  --veil-strong: rgb(22 33 30 / 0.08);
+  --scrim: rgb(22 33 30 / 0.45);
+
+  /*
+   * Brand gradient (#8ACD65 to #0F847E).
+   *
+   * DECORATION ONLY. Text cannot sit on this: dark text clears AA on the light
+   * green end (8.5:1) but fails on the teal end (3.6:1), and white fails the
+   * other way round. Buttons use the solid --accent instead. This token is for
+   * accent bars, borders, and illustrative fills.
+   */
+  --brand-gradient: linear-gradient(135deg, #8acd65 0%, #0f847e 100%);
+
+  /* Figma values, verbatim: designed against a white card. Both ends clear 3:1. */
+  --card-stroke-from: #30b77d;
+  --card-stroke-to: #155137;
+
+  /*
+   * Brand lettering outside the logo image, e.g. the footer tagline.
+   * Light theme uses the Figma deep green so it matches the wordmark artwork
+   * instead of going flat grey. 9.28:1 on white.
+   */
+  --brand-ink: #155137;
+
+  /*
+   * Footer band, deliberately inverted against the page: the Figma deep green,
+   * as a gradient rather than a flat fill so the closing block reads as a
+   * deliberate finish rather than another panel. Both stops stay dark enough
+   * that the near-white footer text clears AA across the whole band.
+   *
+   * Verified: light band #FDFDFD on #155137 is 9.12:1, muted 5.34:1; the
+   * gradient's darker stop (#0A3526) only improves on that.
+   */
+  --footer-bg: #155137;
+  --footer-gradient: linear-gradient(135deg, #155137 0%, #0a3526 100%);
+  --footer-fg: #fdfdfd;
+  --footer-muted: #a7cdbb;
+  --footer-line: #2f6b4f;
+
+  color-scheme: light;
+}
+
+/* Dark is opt-in, chosen explicitly in the theme toggle. */
+:root[data-theme="dark"] {
+  --canvas: #203734;
+  --surface: #26403c;
+  --surface-hi: #2d4a45;
+  --track: #35564f;
+
+  --line: #2f4b46;
+  --line-strong: #3e5d57;
+
+  --fg: #fdfdfd;
+  --fg-muted: #c9d6d2;
+  --fg-subtle: #a3b5b0;
+  --fg-faint: #7f948f;
+  --fg-ghost: #5b716c;
+
+  --accent: #8acd65;
+  --accent-hover: #9bd97a;
+  --on-accent: #14231f;
+
+  --safe: #7bc96a;
+  --warn: #e3b341;
+  --danger: #f58f86;
+
+  --veil: rgb(255 255 255 / 0.06);
+  --veil-strong: rgb(255 255 255 / 0.09);
+  --scrim: rgb(20 35 31 / 0.75);
+
+  --brand-gradient: linear-gradient(135deg, #8acd65 0%, #0f847e 100%);
+
+  /*
+   * The Figma stroke values sit at 1.20:1 against the dark surface, so the
+   * whole gradient is lifted here while keeping the same light-to-dark
+   * direction. Both ends still clear 3:1, the target for non-text UI.
+   */
+  --card-stroke-from: #4ad497;
+  --card-stroke-to: #35a873;
+
+  --brand-ink: #fdfdfd;
+
+  /*
+   * Footer band stays inverted: a near-white gradient against the dark canvas
+   * above it. Dark footer text (#16211E) clears 16.25:1 on the lightest stop
+   * and only improves toward the darker one.
+   */
+  --footer-bg: #fdfdfd;
+  --footer-gradient: linear-gradient(135deg, #fdfdfd 0%, #e6f1ec 100%);
+  --footer-fg: #16211e;
+  --footer-muted: #3a4a46;
+  --footer-line: #c6d5d0;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-hi: var(--surface-hi);
+  --color-track: var(--track);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-faint: var(--fg-faint);
+  --color-fg-ghost: var(--fg-ghost);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+
+  --color-brand-ink: var(--brand-ink);
+  --color-footer-bg: var(--footer-bg);
+  --color-footer-fg: var(--footer-fg);
+  --color-footer-muted: var(--footer-muted);
+  --color-footer-line: var(--footer-line);
+
+  --color-safe: var(--safe);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-shimmer: shimmer 1.8s linear infinite;
+  --animate-breathe: breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/*
+ * Light is the default, so by default: the plain wordmark shows its
+ * light-surface variant (dark lettering, `logo-on-light`), and the footer's
+ * inverted wordmark shows its dark-surface variant (white lettering,
+ * `logo-inv-on-dark`) because the footer band itself is dark green while the
+ * page is light. Both pair on OPPOSITE suffixes by design, not matching ones.
+ */
+.logo-on-dark,
+.logo-inv-on-light {
+  display: none;
+}
+
+:root[data-theme="dark"] .logo-on-light,
+:root[data-theme="dark"] .logo-inv-on-dark {
+  display: none;
+}
+:root[data-theme="dark"] .logo-on-dark,
+:root[data-theme="dark"] .logo-inv-on-light {
+  display: block;
+}
+
+/* Instrument panel: hairline border, quiet fill, no meaningful shadow */
+@utility panel {
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  background-color: var(--surface);
+}
+
+/* Frosted surface with a refracting inner edge */
+@utility glass {
+  background-color: var(--surface);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--line-strong);
+  box-shadow:
+    inset 0 1px 0 var(--veil),
+    0 24px 48px -28px rgb(0 0 0 / 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
